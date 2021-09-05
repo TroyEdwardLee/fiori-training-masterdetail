@@ -1,0 +1,6 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
+	controllerName="fiori.training.masterdetail.controller.NotFound" xmlns:html="http://www.w3.org/1999/xhtml">
+	<MessagePage showHeader="false" text="没有找到任何信息" enableFormattedText="true"
+		description="当前导航到此页面的可能原因：&lt;br&gt;&lt;ul&gt;&lt;li&gt;您刚刚进入此应用时的初始页面，请在左侧选择您要查看的数据项目&lt;/li&gt;&lt;li&gt;您所选择的节点并未在后端系统找到相应的信息，请重新选择其它节点或联系后端管理员&lt;/li&gt;&lt;li&gt;应用程序内部错误，请联系开发人员调试解决&lt;/li&gt;&lt;/ul&gt;"
+		icon="sap-icon://message-warning"></MessagePage>
+</mvc:View>
