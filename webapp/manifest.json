@@ -62,7 +62,7 @@
 				"target": ["master"]
 			}, {
 				"name": "detail",
-				"pattern": "employee/:employeeId:",
+				"pattern": "employee/{EmployeeID}",
 				"target": ["master", "detail"]
 			}, {
 				"name": "notFound",

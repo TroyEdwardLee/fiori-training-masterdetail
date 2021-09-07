@@ -1,8 +1,10 @@
 sap.ui.define([
 	"fiori/training/masterdetail/common/BaseController",
 	"sap/ui/Device",
-	"sap/ui/model/json/JSONModel"
-], function(Controller, Device, JSONModel) {
+	"sap/ui/model/json/JSONModel",
+	"sap/ui/model/Filter",
+	"sap/ui/model/FilterOperator"
+], function(Controller, Device, JSONModel, Filter, FilterOperator) {
 	"use strict";
 
 	return Controller.extend("fiori.training.masterdetail.controller.Master", {
@@ -14,6 +16,12 @@ sap.ui.define([
 		 */
 		onInit: function() {
 			this.oDataModel = this.getOwnerComponent().getModel();
+			var oEventBus = this.getOwnerComponent().getEventBus();
+			oEventBus.subscribe("fetchEmployeeData", this._fetchEmployeeData, this);
+			this.oView.setModel(new JSONModel({
+				"sQueryStr": ""
+			}), "viewModel");
+			this.oViewModel = this.oView.getModel("viewModel");
 			this.oView.setModel(new JSONModel({
 				"Employees": []
 			}), "businessModel");
@@ -21,8 +29,88 @@ sap.ui.define([
 			this.getRouter().getRoute("master").attachPatternMatched(this._onRouteMatched, this);
 		},
 
-		_onRouteMatched: function(oEvent) {
+		_onRouteMatched: function(oEvent) {},
+
+		/**
+		 * Called when the View has been rendered (so its HTML is part of the document). Post-rendering manipulations of the HTML could be done here.
+		 * This hook is the same one that SAPUI5 controls get after being rendered.
+		 * @memberOf fiori.training.masterdetail.view.Master
+		 */
+		onAfterRendering: function() {
 			this._fetchEmployeeData();
+		},
+		
+		onSearch: function() {
+			this._fetchEmployeeData();
+		},
+		
+		handleRefreshPress: function() {
+			this.oViewModel.setProperty("/sQueryStr", "");
+			this._fetchEmployeeData();
+		},
+		
+		_fetchEmployeeData: function() {
+			var aFilter = [];
+			var sQueryStr = this.oViewModel.getProperty("/sQueryStr").trim();
+			if (sQueryStr && sQueryStr.length) {
+				var	oFilter = new Filter({
+					filters: [
+						new Filter({
+							path: "Id",
+							operator: FilterOperator.EQ,
+							value1: sQueryStr
+						}),
+						new Filter({
+							path: "Name",
+							operator: FilterOperator.EQ,
+							value1: sQueryStr
+						})
+					],
+					and: false
+				});
+				aFilter.push(oFilter);
+			}
+			this.oBusinessModel.setProperty("/Employees", []);
+			this.oView.byId("masterListId").setBusy(true);
+			this.oDataModel.read("/ZEMPLOYEEINFOSet", {
+				groupId: "employeeData",
+				filters: aFilter,
+				success: function(oData) {
+					this.oView.byId("masterListId").setBusy(false);
+					this.oBusinessModel.setProperty("/Employees", oData.results);
+				}.bind(this),
+				error: function() {
+					this.oView.byId("masterListId").setBusy(false);
+					sap.m.MessageBox.error("Load data failed.");
+				}
+			});
+		},
+
+		handleListUpdateFinished: function(oEvent) {
+			if (!Device.system.phone) {
+				this._selectFirstItem();
+			}
+		},
+		
+		_selectFirstItem: function() {
+			var oList = this.oView.byId("masterListId"),
+				aItem = oList.getItems() ? oList.getItems() : [];
+			if (aItem && aItem.length > 0) {
+				oList.setSelectedItem(aItem[0]);
+				oList.fireSelectionChange({
+					listItem: aItem[0],
+					listItems: [aItem[0]],
+					selected: true,
+					selectAll: false
+				});
+			} else if (!Device.system.phone && !aItem.length) {
+				this.getRouter().navTo("notFound", {}, true);
+			}
+		},
+		
+		handleListSelectionChange: function(oEvent) {
+			var oSelectedItem = oEvent.getParameter("listItem"),
+				oSelectedItemData = oSelectedItem.getBindingContext("businessModel").getProperty();
 			/*
 			 * Navigate to the first item by default only on desktop and tablet (but not phone).
 			 * Note that item selection is not handled as it is
@@ -30,41 +118,10 @@ sap.ui.define([
 			 */
 			if (!Device.system.phone) {
 				this.getRouter().navTo("detail", {
-					employeeId: 0
+					EmployeeID: oSelectedItemData.Id
 				}, true);
 			}
-		},
-
-		_fetchEmployeeData: function() {
-			this.oBusinessModel.setProperty("/Employees", []);
-			this.oDataModel.read("/ZEMPLOYEEINFOSet", {
-				groupId: "employeeData",
-				success: function(oData) {
-					this.oBusinessModel.setProperty("/Employees", oData.results);
-				}.bind(this),
-				error: function() {
-					sap.m.MessageBox.error("Load data failed.");
-				}
-			});
 		}
-
-		/**
-		 * Similar to onAfterRendering, but this hook is invoked before the controller's View is re-rendered
-		 * (NOT before the first rendering! onInit() is used for that one!).
-		 * @memberOf fiori.training.masterdetail.view.Master
-		 */
-		//	onBeforeRendering: function() {
-		//
-		//	},
-
-		/**
-		 * Called when the View has been rendered (so its HTML is part of the document). Post-rendering manipulations of the HTML could be done here.
-		 * This hook is the same one that SAPUI5 controls get after being rendered.
-		 * @memberOf fiori.training.masterdetail.view.Master
-		 */
-		//	onAfterRendering: function() {
-		//
-		//	},
 
 		/**
 		 * Called when the Controller is destroyed. Use this one to free resources and finalize activities.
