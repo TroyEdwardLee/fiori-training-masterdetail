@@ -1,11 +1,13 @@
 <mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="fiori.training.masterdetail.controller.Master"
 	xmlns:html="http://www.w3.org/1999/xhtml">
-	<Page title="{i18n>title}" floatingFooter="true">
+	<Page id="masterPageId" title="{i18n>title}" floatingFooter="true">
+		<headerContent>
+			<Button icon="sap-icon://add" tooltip="Add Employee" press="handleAddPress" />
+		</headerContent>
 		<subHeader>
 			<OverflowToolbar>
-				<SearchField value="{viewModel>/sQueryStr}" liveChange=".onSearch" width="100%"
-					showRefreshButton="true"
-					search="handleRefreshPress"/>
+				<SearchField value="{viewModel>/sQueryStr}" width="100%" placeholder="Please enter Name or ID..."
+					showRefreshButton="true" search="handleRefreshPress"/>
 			</OverflowToolbar>
 		</subHeader>
 		<content>
@@ -30,9 +32,9 @@
 		</content>
 		<footer>
 			<OverflowToolbar>
-				<Button type="Reject" text="Delete"/>
+				<Button type="Reject" text="Delete" press="handleDelPress"/>
 				<ToolbarSpacer/>
-				<Button type="Emphasized" text="Edit"/>
+				<Button type="Emphasized" text="Edit" press="handleEditPress"/>
 			</OverflowToolbar>
 		</footer>
 	</Page>

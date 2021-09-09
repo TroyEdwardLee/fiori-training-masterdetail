@@ -3,8 +3,9 @@ sap.ui.define([
 	"sap/ui/Device",
 	"sap/ui/model/json/JSONModel",
 	"sap/ui/model/Filter",
-	"sap/ui/model/FilterOperator"
-], function(Controller, Device, JSONModel, Filter, FilterOperator) {
+	"sap/ui/model/FilterOperator",
+	"sap/ui/core/Fragment"
+], function(Controller, Device, JSONModel, Filter, FilterOperator, Fragment) {
 	"use strict";
 
 	return Controller.extend("fiori.training.masterdetail.controller.Master", {
@@ -19,7 +20,14 @@ sap.ui.define([
 			var oEventBus = this.getOwnerComponent().getEventBus();
 			oEventBus.subscribe("fetchEmployeeData", this._fetchEmployeeData, this);
 			this.oView.setModel(new JSONModel({
-				"sQueryStr": ""
+				"sQueryStr": "",
+				"maintainEmployee": {
+					"Id": "",
+					"Name": "",
+					"Age": null,
+					"Birthdate": null,
+					"Address": ""
+				}
 			}), "viewModel");
 			this.oViewModel = this.oView.getModel("viewModel");
 			this.oView.setModel(new JSONModel({
@@ -37,10 +45,6 @@ sap.ui.define([
 		 * @memberOf fiori.training.masterdetail.view.Master
 		 */
 		onAfterRendering: function() {
-			this._fetchEmployeeData();
-		},
-		
-		onSearch: function() {
 			this._fetchEmployeeData();
 		},
 		
@@ -115,6 +119,142 @@ sap.ui.define([
 			this.getRouter().navTo("detail", {
 				EmployeeID: oSelectedItemData.Id
 			}, Device.system.desktop);
+		},
+		
+		handleAddPress: function() {
+			var oView = this.oView;
+			// create dialog lazily
+			if (!this._oAddDialog) {
+				Fragment.load({
+					id: oView.getId(),
+					name: "fiori.training.masterdetail.fragment.AddDialog",
+					controller: this
+				}).then(function(oDialog) {
+					this._oAddDialog = oDialog;
+					// connect dialog to the root view of this component (models, lifecycle)
+					oView.addDependent(oDialog);
+					oDialog.open();
+				}.bind(this));
+			} else {
+				this._oAddDialog.open();
+			}
+		},
+		
+		handleConfirmAdd: function() {
+			var oEmployee = this.oViewModel.getProperty("/maintainEmployee");
+			this._oAddDialog.setBusy(true);
+			this.oDataModel.create("/ZEMPLOYEEINFOSet", oEmployee, {
+				groupId: "addEmployee",
+				success: function(oRes) {
+					this._oAddDialog.setBusy(false);
+					this._oAddDialog.close();
+					sap.m.MessageToast.show("Add Employee info successfully.");
+					this._fetchEmployeeData();
+				}.bind(this),
+				error: function(error) {
+					this._oAddDialog.setBusy(false);
+					sap.m.MessageBox.error("Add Employee info failed.");
+				}.bind(this)
+			});
+		},
+		
+		handleCancelOpreation: function(oEvent) {
+			var oSource = oEvent.getSource();
+			oSource.getParent().close();
+		},
+		
+		handleAddDialogAfterOpen: function() {
+			this.oViewModel.setProperty("/maintainEmployee/Id", this.generateGuid());
+		},
+		
+		handleAddDialogAfterClose: function() {
+			this.oViewModel.setProperty("/maintainEmployee", {
+				"Id": "",
+				"Name": "",
+				"Age": null,
+				"Birthdate": "",
+				"Address": ""
+			});
+		},
+		
+		handleEditPress: function() {
+			var oView = this.oView,
+				oMasterList = oView.byId("masterListId"),
+				oItem = oMasterList.getSelectedItem();
+			if  (!oItem) {
+				sap.m.MessageBox.error("Please selected a item at least.");
+				return;
+			}
+			var oSelectedData = oItem.getBindingContext("businessModel").getProperty();
+			delete oSelectedData.__metadata;
+			this.oViewModel.setProperty("/maintainEmployee", oSelectedData);
+			// create dialog lazily
+			if (!this._oEditDialog) {
+				Fragment.load({
+					id: oView.getId(),
+					name: "fiori.training.masterdetail.fragment.EditDialog",
+					controller: this
+				}).then(function(oDialog) {
+					this._oEditDialog = oDialog;
+					// connect dialog to the root view of this component (models, lifecycle)
+					oView.addDependent(oDialog);
+					oDialog.open();
+				}.bind(this));
+			} else {
+				this._oEditDialog.open();
+			}
+		},
+		
+		handleConfirmEdit: function() {
+			var oEmployee = this.oViewModel.getProperty("/maintainEmployee");
+			this._oEditDialog.setBusy(true);
+			this.oDataModel.update("/ZEMPLOYEEINFOSet('" + oEmployee.Id + "')", oEmployee, {
+				groupId: "updateEmployee",
+				success: function(oRes) {
+					this._oEditDialog.setBusy(false);
+					this._oEditDialog.close();
+					sap.m.MessageToast.show("Update Employee info successfully.");
+					this._fetchEmployeeData();
+				}.bind(this),
+				error: function(error) {
+					this._oEditDialog.setBusy(false);
+					sap.m.MessageBox.error("Update Employee info failed.");
+				}
+			});
+		},
+		
+		handleDelPress: function() {
+			var oSelectedItem = this.oView.byId("masterListId").getSelectedItem();
+			if (oSelectedItem) {
+				sap.m.MessageBox.confirm("Confirm delete employee?", {
+					onClose: function(sAction) {
+						if (sAction === "OK") {
+							this._removeEmployee();
+						}
+					}.bind(this)
+				});
+			} else {
+				sap.m.MessageBox.error("Please selected a item at least.");
+			}
+		},
+		
+		_removeEmployee: function() {
+			var oMasterList = this.oView.byId("masterListId"),
+				oSelectedItemData = oMasterList.getSelectedItem().getBindingContext("businessModel").getProperty();
+			var sSelectedId = oSelectedItemData.Id;
+			this.oView.byId("masterPageId").setBusy(true);
+			this.oDataModel.remove("/ZEMPLOYEEINFOSet('" + sSelectedId + "')", {
+				groupId: "removeEmployee",
+				success: function(oRes) {
+					this.oView.byId("masterPageId").setBusy(false);
+					sap.m.MessageToast.show("Delete Employee info successfully.");
+					this._fetchEmployeeData();
+				}.bind(this),
+				error: function(error) {
+					this.oView.byId("masterPageId").setBusy(false);
+					sap.m.MessageBox.error("Delete Employee info failed.");
+				}.bind(this)
+			});
 		}
 
 		/**
