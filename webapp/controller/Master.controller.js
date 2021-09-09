@@ -71,20 +71,16 @@ sap.ui.define([
 				aFilter.push(oFilter);
 			}
 			this.oBusinessModel.setProperty("/Employees", []);
-			if (!Device.support.touch) {
-				this.oView.byId("masterListId").setBusy(true);
-			}
+			this.oView.byId("masterListId").setBusy(true);
 			this.oDataModel.read("/ZEMPLOYEEINFOSet", {
 				groupId: "employeeData",
 				filters: aFilter,
 				success: function(oData) {
 					this.oView.byId("masterListId").setBusy(false);
-					this.oView.byId("pullToRefresh").hide();
 					this.oBusinessModel.setProperty("/Employees", oData.results);
 				}.bind(this),
 				error: function() {
 					this.oView.byId("masterListId").setBusy(false);
-					this.oView.byId("pullToRefresh").hide();
 					sap.m.MessageBox.error("Load data failed.");
 				}.bind(this)
 			});

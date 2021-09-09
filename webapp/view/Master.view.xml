@@ -4,12 +4,11 @@
 		<subHeader>
 			<OverflowToolbar>
 				<SearchField value="{viewModel>/sQueryStr}" liveChange=".onSearch" width="100%"
-					showRefreshButton="{=!${device>/support/touch}}"
+					showRefreshButton="true"
 					search="handleRefreshPress"/>
 			</OverflowToolbar>
 		</subHeader>
 		<content>
-			<PullToRefresh id="pullToRefresh" refresh="handleRefreshPress" visible="{device>/support/touch}"/>
 			<List id="masterListId" items="{businessModel>/Employees}" mode="SingleSelectMaster"
 				updateFinished="handleListUpdateFinished" selectionChange="handleListSelectionChange" busyIndicatorDelay="0">
 				<!--<headerToolbar>
