@@ -1,20 +1,21 @@
 <mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="fiori.training.masterdetail.controller.Master"
 	xmlns:html="http://www.w3.org/1999/xhtml">
-	<Page title="{i18n>title}">
+	<Page title="{i18n>title}" floatingFooter="true">
+		<subHeader>
+			<OverflowToolbar>
+				<SearchField value="{viewModel>/sQueryStr}" liveChange=".onSearch" width="100%"
+					showRefreshButton="{=!${device>/support/touch}}"
+					search="handleRefreshPress"/>
+			</OverflowToolbar>
+		</subHeader>
 		<content>
+			<PullToRefresh id="pullToRefresh" refresh="handleRefreshPress" visible="{device>/support/touch}"/>
 			<List id="masterListId" items="{businessModel>/Employees}" mode="SingleSelectMaster"
 				updateFinished="handleListUpdateFinished" selectionChange="handleListSelectionChange" busyIndicatorDelay="0">
-				<headerToolbar>
-					<OverflowToolbar>
-						<SearchField value="{viewModel>/sQueryStr}" liveChange=".onSearch" width="auto"/>
-						<ToolbarSpacer />
-						<Button tooltip="Refresh"
-							icon="sap-icon://synchronize"
-							press="handleRefreshPress" />
-					</OverflowToolbar>
-				</headerToolbar>
+				<!--<headerToolbar>
+				</headerToolbar>-->
 				<items>
-					<ObjectListItem title="{businessModel>Name}" type="Active" press="onListItemPress"
+					<ObjectListItem title="{businessModel>Name}" type="Active" press="handleListSelectionChange"
 						number="{businessModel>Age}">
 						<firstStatus>
 							<ObjectStatus text="{
@@ -28,5 +29,12 @@
 				</items>
 			</List>
 		</content>
+		<footer>
+			<OverflowToolbar>
+				<Button type="Reject" text="Delete"/>
+				<ToolbarSpacer/>
+				<Button type="Emphasized" text="Edit"/>
+			</OverflowToolbar>
+		</footer>
 	</Page>
 </mvc:View>

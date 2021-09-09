@@ -45,7 +45,7 @@ sap.ui.define([
 		},
 		
 		handleRefreshPress: function() {
-			this.oViewModel.setProperty("/sQueryStr", "");
+			// this.oViewModel.setProperty("/sQueryStr", "");
 			this._fetchEmployeeData();
 		},
 		
@@ -71,22 +71,27 @@ sap.ui.define([
 				aFilter.push(oFilter);
 			}
 			this.oBusinessModel.setProperty("/Employees", []);
-			this.oView.byId("masterListId").setBusy(true);
+			if (!Device.support.touch) {
+				this.oView.byId("masterListId").setBusy(true);
+			}
 			this.oDataModel.read("/ZEMPLOYEEINFOSet", {
 				groupId: "employeeData",
 				filters: aFilter,
 				success: function(oData) {
 					this.oView.byId("masterListId").setBusy(false);
+					this.oView.byId("pullToRefresh").hide();
 					this.oBusinessModel.setProperty("/Employees", oData.results);
 				}.bind(this),
 				error: function() {
 					this.oView.byId("masterListId").setBusy(false);
+					this.oView.byId("pullToRefresh").hide();
 					sap.m.MessageBox.error("Load data failed.");
-				}
+				}.bind(this)
 			});
 		},
 
 		handleListUpdateFinished: function(oEvent) {
+			this.oView.byId("masterListId").removeSelections(true);
 			if (!Device.system.phone) {
 				this._selectFirstItem();
 			}
@@ -111,16 +116,9 @@ sap.ui.define([
 		handleListSelectionChange: function(oEvent) {
 			var oSelectedItem = oEvent.getParameter("listItem"),
 				oSelectedItemData = oSelectedItem.getBindingContext("businessModel").getProperty();
-			/*
-			 * Navigate to the first item by default only on desktop and tablet (but not phone).
-			 * Note that item selection is not handled as it is
-			 * out of scope of this sample
-			 */
-			if (!Device.system.phone) {
-				this.getRouter().navTo("detail", {
-					EmployeeID: oSelectedItemData.Id
-				}, true);
-			}
+			this.getRouter().navTo("detail", {
+				EmployeeID: oSelectedItemData.Id
+			}, Device.system.desktop);
 		}
 
 		/**

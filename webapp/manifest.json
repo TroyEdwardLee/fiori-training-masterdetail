@@ -67,7 +67,7 @@
 			}, {
 				"name": "notFound",
 				"pattern": "notFound",
-				"target": ["notFound"]
+				"target": ["master", "notFound"]
 			}],
 			"targets": {
 				"master": {
@@ -76,17 +76,17 @@
 				},
 				"detail": {
 					"viewName": "Detail",
+					"viewType": "XML",
 					"controlAggregation": "detailPages",
 					"viewLevel": 2,
 					"transition": "slide"
 				},
 				"notFound": {
-					"viewType": "XML",
-					"transition": "slide",
-					"clearAggregation": true,
 					"viewName": "NotFound",
+					"viewType": "XML",
 					"viewLevel": 2,
-					"controlAggregation": "detailPages"
+					"controlAggregation": "detailPages",
+					"transition": "slide"
 				}
 			}
 		},
