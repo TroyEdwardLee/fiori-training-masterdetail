@@ -39,7 +39,10 @@
 			"tablet": true,
 			"phone": true
 		},
-		"supportedThemes": ["sap_hcb", "sap_belize"]
+		"supportedThemes": [
+			"sap_hcb",
+			"sap_belize"
+		]
 	},
 	"sap.ui5": {
 		"rootView": {
@@ -56,19 +59,31 @@
 				"viewType": "XML",
 				"async": true
 			},
-			"routes": [{
-				"name": "master",
-				"pattern": "",
-				"target": ["master"]
-			}, {
-				"name": "detail",
-				"pattern": "employee/{EmployeeID}",
-				"target": ["master", "detail"]
-			}, {
-				"name": "notFound",
-				"pattern": "notFound",
-				"target": ["master", "notFound"]
-			}],
+			"routes": [
+				{
+					"name": "master",
+					"pattern": "",
+					"target": [
+						"master"
+					]
+				},
+				{
+					"name": "detail",
+					"pattern": "employee/{EmployeeID}",
+					"target": [
+						"master",
+						"detail"
+					]
+				},
+				{
+					"name": "notFound",
+					"pattern": "notFound",
+					"target": [
+						"master",
+						"notFound"
+					]
+				}
+			],
 			"targets": {
 				"master": {
 					"viewName": "Master",
@@ -124,9 +139,15 @@
 			}
 		},
 		"resources": {
-			"css": [{
-				"uri": "css/style.css"
-			}]
+			"css": [
+				{
+					"uri": "css/style.css"
+				}
+			]
 		}
+	},
+	"sap.platform.abap": {
+		"uri": "/sap/bc/ui5_ui5/sap/zf_crud_md/webapp",
+		"_version": "1.1.0"
 	}
 }
