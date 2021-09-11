@@ -1,6 +1,7 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:fm="sap.ui.layout.form" xmlns:layout="sap.ui.layout">
 	<Dialog id="addDialogId" title="New Employee" class="sapUiResponsiveContentPadding" titleAlignment="Center"
-		afterOpen="handleAddDialogAfterOpen" afterClose="handleAddDialogAfterClose" icon="sap-icon://add-employee" state="Information">
+		afterOpen="handleAddDialogAfterOpen" afterClose="handleAddDialogAfterClose" icon="sap-icon://add-employee"
+		state="Information" busyIndicatorDelay="0">
 		<content>
 			<fm:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanXL="4" labelSpanL="4" labelSpanM="8"
 				labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1"

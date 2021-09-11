@@ -248,6 +248,7 @@ sap.ui.define([
 				success: function(oRes) {
 					this.oView.byId("masterPageId").setBusy(false);
 					sap.m.MessageToast.show("Delete Employee info successfully.");
+					this.oViewModel.setProperty("/sQueryStr", "");
 					this._fetchEmployeeData();
 				}.bind(this),
 				error: function(error) {

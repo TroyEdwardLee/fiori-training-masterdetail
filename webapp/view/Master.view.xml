@@ -16,7 +16,7 @@
 				<!--<headerToolbar>
 				</headerToolbar>-->
 				<items>
-					<ObjectListItem title="{businessModel>Name}" type="Active" press="handleListSelectionChange"
+					<ObjectListItem title="{businessModel>Name}" type="Active"
 						number="{businessModel>Age}">
 						<firstStatus>
 							<ObjectStatus text="{
